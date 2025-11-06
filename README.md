@@ -1,0 +1,2 @@
+# lark_bitable_sync
+将自己的数据同步到飞书多维表格；Mysql和飞书多维表格数据同步
