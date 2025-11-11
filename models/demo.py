@@ -5,6 +5,18 @@ from models.cloud_base import PostRecord, DataObj, GetRecord
 from models.cloud_table import CloudTableNew
 
 
+#? 定义你的数据模型
+# class YourDemoDataObj(DataObj):
+#     Field1: str
+#     Field2: int
+#     Field3: Optional[str]
+#     Field4: List[str]
+#     ...
+#?    定义你数据的主键primary_fields
+#     @property
+#     def PRIMARY_KEY(self):
+#         return self.primary_fields
+
 class ServerDataObj(DataObj):
     sid: str
     name: str
@@ -26,11 +38,37 @@ class ServerDataObj(DataObj):
         return self.sid
 
 
+#? 定义你的数据模型 这里的PRIMARY_KEY应该是飞书多维表格数据类型，具体数据在fields的Dict中
+# class YourDemoGetRecord(GetRecord):
+#     @property
+#     def PRIMARY_KEY(self):
+#         return self.fields['your_primary_key_name_in_bitable']
 
 class ServerGetRecord(GetRecord):
     @property
     def PRIMARY_KEY(self):
         return self.fields['sid']
+
+
+# #? 定义你的数据模型 PostRecord为推送到多维表格的数据类型
+# class YourDemoPostRecord(PostRecord):
+#     def __init__(self, obj: YourDemoDataObj) -> None:
+#         super().__init__(obj=obj)
+#         # 将YourDemoDataObj对象的属性转换为字典
+#         self.obj = obj
+        
+#         #!!! PostRecord.fields的每一个key的name 应当与多维表格的列名对应且完全一致
+#         self.fields.update({
+#             "LARK_Field1": obj.Field1,
+#             "LARK_Field2": obj.Field2,
+#             "LARK_Field3": obj.Field3,
+#             "LARK_Field4": obj.Field4,
+#         })
+
+#     @property
+#     def Format_your_field_to_bitable(self):
+#         return "IF_Value" if not self.obj.Field1 else "False_Value"
+
 
 
 class ServerPostRecord(PostRecord):
@@ -39,7 +77,7 @@ class ServerPostRecord(PostRecord):
     """
     def __init__(self, obj: ServerDataObj) -> None:
         super().__init__(obj=obj)
-        # 将ArpInfoDBObj对象的属性转换为字典
+        # 将ServerDataObj对象的属性转换为字典
         self.obj = obj
         
         #!!! PostRecord.fields的每一个key的name 应当与多维表格的列名对应且完全一致
@@ -59,7 +97,7 @@ class ServerPostRecord(PostRecord):
     @property
     def recycle_tatus(self):
         "机器是否回收 将tinyint类型数据 0为False 1为True转为字符串"
-        return "正常" if not self.obj.network_disconnect else "即将回收"
+        return "正常" if not self.obj.will_recycle else "即将回收"
     
     
     @property
@@ -73,6 +111,11 @@ class ServerPostRecord(PostRecord):
         if self.obj.disk_ssd != 0:
             assets += f"{self.obj.disk_ssd}G SSD"
         return assets
+
+
+# class YourDemoTable(CloudTableNew):
+#     def __init__(self, app_token="your_app_token", table_id="your_demodata_table_id", *args, **kwargs) -> None:
+#         super().__init__(app_token=app_token, table_id=table_id, GetRecordClass=YourDemoGetRecord, *args, **kwargs)
 
 
 class ServersTable(CloudTableNew):
